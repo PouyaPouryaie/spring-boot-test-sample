@@ -18,7 +18,7 @@ public class ProductController {
     public ResponseEntity<?> createProduct(@RequestBody ProductDto productDto) throws Exception {
         try {
             productService.createProduct(productDto);
-            return ResponseEntity.accepted().build();
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
