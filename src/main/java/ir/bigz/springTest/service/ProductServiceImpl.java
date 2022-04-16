@@ -2,6 +2,7 @@ package ir.bigz.springTest.service;
 
 import ir.bigz.springTest.dto.ProductDto;
 import ir.bigz.springTest.entity.Product;
+import ir.bigz.springTest.exception.ProductNotFoundException;
 import ir.bigz.springTest.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,11 +31,17 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public ProductDto getProductByName(String name) {
-        Optional<Product> productFounded = productRepository.getProductByName(name);
-        if(productFounded.isPresent()){
-            return productToProductDto(productFounded.get());
-        }
-        return null;
+        return productRepository.getProductByName(name)
+                .map(this::productToProductDto)
+                .orElse(null);
+    }
+
+    @Override
+    public ProductDto getProductById(Long id) throws ProductNotFoundException {
+
+        return productRepository.findById(id)
+                .map(this::productToProductDto)
+                .orElseThrow(ProductNotFoundException::new);
     }
 
     private Product productDtoToProduct(ProductDto productDto){

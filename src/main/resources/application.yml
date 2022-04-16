@@ -3,10 +3,10 @@ spring:
     name: springTest
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/sample
+    url: jdbc:postgresql://localhost:5432/production
     username: postgres
     password: postgres
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: update

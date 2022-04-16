@@ -25,12 +25,19 @@ public class ProductController {
     }
 
     @GetMapping("/byname")
-    public ResponseEntity<?> getProductByName(@RequestParam(value = "name", required = true) String productName) throws Exception {
+    public ResponseEntity<?> getProductByName(@RequestParam(value = "name", required = true) String productName) {
         try {
             ProductDto productByName = productService.getProductByName(productName);
             return ResponseEntity.ok().body(productByName);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+
+    @GetMapping("/byId")
+    public ResponseEntity<?> getProductById(@RequestParam(value = "id") Long productId) {
+
+        ProductDto productById = productService.getProductById(productId);
+        return ResponseEntity.ok().body(productById);
     }
 }
