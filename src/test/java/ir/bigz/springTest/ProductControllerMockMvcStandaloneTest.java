@@ -21,6 +21,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Optional;
+
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -81,5 +83,23 @@ public class ProductControllerMockMvcStandaloneTest {
         // then
         Assertions.assertEquals(response.getStatus(), HttpStatus.NOT_FOUND.value());
         Assertions.assertTrue(response.getContentAsString().isEmpty());
+    }
+
+    @Test
+    public void canRetrieveByNameWhenExists() throws Exception {
+        // given
+        given(productService.getProductByName("RobotMan"))
+                .willReturn(new ProductDto(10L, "RobotMan", 120_000D));
+
+        // when
+        MockHttpServletResponse response = mvc.perform(
+                get("/product/api/v1/byname?name=RobotMan")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse();
+
+        // then
+        Assertions.assertEquals(response.getStatus(), HttpStatus.OK.value());
+        Assertions.assertEquals(response.getContentAsString(),
+                jsonProductDto.write(new ProductDto(10L, "RobotMan", 120_000D)).getJson());
     }
 }
