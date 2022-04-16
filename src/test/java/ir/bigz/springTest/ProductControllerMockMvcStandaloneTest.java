@@ -5,6 +5,7 @@ import ir.bigz.springTest.controller.ProductController;
 import ir.bigz.springTest.dto.ProductDto;
 import ir.bigz.springTest.exception.ProductExceptionHandler;
 import ir.bigz.springTest.exception.ProductNotFoundException;
+import ir.bigz.springTest.filter.RequestFilter;
 import ir.bigz.springTest.service.ProductService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,14 +14,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.BDDMockito.given;
@@ -45,6 +43,7 @@ public class ProductControllerMockMvcStandaloneTest {
     public void setUp(){
         mvc = MockMvcBuilders.standaloneSetup(productController)
                 .setControllerAdvice(new ProductExceptionHandler())
+                .addFilters(new RequestFilter())
                 .build();
         JacksonTester.initFields(this, new ObjectMapper());
     }
