@@ -7,7 +7,7 @@ import ir.bigz.springTest.exception.ProductExceptionHandler;
 import ir.bigz.springTest.exception.ProductNotFoundException;
 import ir.bigz.springTest.filter.RequestFilter;
 import ir.bigz.springTest.service.ProductService;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,13 +21,15 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Optional;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+/*
+Prior to JUnit 5, we would use MockitoJUnitRunner to run our unit test.
+In the new JUnit version, the runner behaviors have been replaced by Extension.
+ */
 @ExtendWith(MockitoExtension.class)
 public class ProductControllerMockMvcStandaloneTest {
 
@@ -41,25 +43,31 @@ public class ProductControllerMockMvcStandaloneTest {
 
 
     // This object will be magically initialized by the initFields method below.
+    //a utility class included in the Spring Boot Test module to generate and parse JSON.
     private JacksonTester<ProductDto> jsonProductDto;
 
     @BeforeEach
-    public void setUp(){
+    public void setUp() {
 
-        // MockMvc standalone approach
+        /*
+        MockMvc standalone approach, you have to define controller, advice , ...
+        because that you don’t have any Spring context that can inject them automatically.
+         */
         mvc = MockMvcBuilders.standaloneSetup(productController)
                 .setControllerAdvice(new ProductExceptionHandler())
                 .addFilters(new RequestFilter())
                 .build();
 
-        // We would need this line if we would not use the MockitoExtension
-        // MockitoAnnotations.initMocks(this);
-        // Here we can't use @AutoConfigureJsonTesters because there isn't a Spring context
+        /*
+        We would need this line if we would not use the MockitoExtension
+        MockitoAnnotations.initMocks(this);
+        Here we can't use @AutoConfigureJsonTesters because there isn't a Spring context
+         */
         JacksonTester.initFields(this, new ObjectMapper());
     }
 
     @Test
-    public void canRetrieveByIdWhenExists() throws Exception{
+    public void canRetrieveByIdWhenExists() throws Exception {
         //given
         ProductDto productDto = new ProductDto(2L, "Ginger", 54_000D);
         given(productService.getProductById(2L))
@@ -73,12 +81,12 @@ public class ProductControllerMockMvcStandaloneTest {
                 .getResponse();
 
         // then
-        Assertions.assertEquals(response.getStatus(), HttpStatus.OK.value());
-        Assertions.assertEquals(response.getContentAsString(), jsonProductDto.write(productDto).getJson());
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isEqualTo(jsonProductDto.write(productDto).getJson());
     }
 
     @Test
-    public void canRetrieveByIdWhenDoseNotExists() throws Exception{
+    public void canRetrieveByIdWhenDoseNotExists() throws Exception {
         //given
         given(productService.getProductById(3L))
                 .willThrow(ProductNotFoundException.class);
@@ -89,8 +97,8 @@ public class ProductControllerMockMvcStandaloneTest {
 
 
         // then
-        Assertions.assertEquals(response.getStatus(), HttpStatus.NOT_FOUND.value());
-        Assertions.assertTrue(response.getContentAsString().isEmpty());
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(response.getContentAsString()).isEmpty();
     }
 
     @Test
@@ -106,8 +114,8 @@ public class ProductControllerMockMvcStandaloneTest {
                 .andReturn().getResponse();
 
         // then
-        Assertions.assertEquals(response.getStatus(), HttpStatus.OK.value());
-        Assertions.assertEquals(response.getContentAsString(),
+        Assertions.assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        Assertions.assertThat(response.getContentAsString()).isEqualTo(
                 jsonProductDto.write(new ProductDto(10L, "RobotMan", 120_000D)).getJson());
     }
 
@@ -125,7 +133,7 @@ public class ProductControllerMockMvcStandaloneTest {
                 .getResponse();
 
         // then
-        Assertions.assertEquals(response.getStatus(), HttpStatus.CREATED.value());
+        Assertions.assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
     }
 
     @Test
@@ -139,7 +147,7 @@ public class ProductControllerMockMvcStandaloneTest {
                 .getResponse();
 
         // then
-        Assertions.assertEquals(response.getStatus(), HttpStatus.OK.value());
-        Assertions.assertTrue(response.getHeader("X-SprintTest-APP").contains("spring-header"));
+        Assertions.assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        Assertions.assertThat(response.getHeader("X-SprintTest-APP")).containsOnlyOnce("spring-header");
     }
 }
