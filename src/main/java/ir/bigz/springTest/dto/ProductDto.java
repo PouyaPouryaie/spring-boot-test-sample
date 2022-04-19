@@ -1,17 +1,17 @@
 package ir.bigz.springTest.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
+
+import java.io.Serializable;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Builder
 @ToString
-public class ProductDto {
+public class ProductDto implements Serializable {
 
-    private final Long productId;
-    private final String name;
-    private final Double price;
+    private Long productId;
+    private String name;
+    private Double price;
 }

@@ -24,7 +24,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductControllerMockMvcStandaloneTest {
@@ -43,10 +45,16 @@ public class ProductControllerMockMvcStandaloneTest {
 
     @BeforeEach
     public void setUp(){
+
+        // MockMvc standalone approach
         mvc = MockMvcBuilders.standaloneSetup(productController)
                 .setControllerAdvice(new ProductExceptionHandler())
                 .addFilters(new RequestFilter())
                 .build();
+
+        // We would need this line if we would not use the MockitoExtension
+        // MockitoAnnotations.initMocks(this);
+        // Here we can't use @AutoConfigureJsonTesters because there isn't a Spring context
         JacksonTester.initFields(this, new ObjectMapper());
     }
 
@@ -101,5 +109,37 @@ public class ProductControllerMockMvcStandaloneTest {
         Assertions.assertEquals(response.getStatus(), HttpStatus.OK.value());
         Assertions.assertEquals(response.getContentAsString(),
                 jsonProductDto.write(new ProductDto(10L, "RobotMan", 120_000D)).getJson());
+    }
+
+    @Test
+    public void canCreateANewProduct() throws Exception {
+
+        // when
+        MockHttpServletResponse response = mvc.perform(
+                post("/product/api/v1/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonProductDto.write(
+                                ProductDto.builder().name("crops").price(120_000D).build())
+                                .getJson()))
+                .andReturn()
+                .getResponse();
+
+        // then
+        Assertions.assertEquals(response.getStatus(), HttpStatus.CREATED.value());
+    }
+
+    @Test
+    public void headerIsPresent() throws Exception {
+
+        // when
+        MockHttpServletResponse response = mvc
+                .perform(get("/product/api/v1/byId?id=2")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse();
+
+        // then
+        Assertions.assertEquals(response.getStatus(), HttpStatus.OK.value());
+        Assertions.assertTrue(response.getHeader("X-SprintTest-APP").contains("spring-header"));
     }
 }
