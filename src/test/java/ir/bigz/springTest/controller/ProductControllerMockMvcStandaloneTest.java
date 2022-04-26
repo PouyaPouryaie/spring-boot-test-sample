@@ -1,49 +1,70 @@
-package ir.bigz.springTest;
+package ir.bigz.springTest.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import ir.bigz.springTest.controller.ProductController;
 import ir.bigz.springTest.dto.ProductDto;
+import ir.bigz.springTest.exception.ProductExceptionHandler;
 import ir.bigz.springTest.exception.ProductNotFoundException;
+import ir.bigz.springTest.filter.RequestFilter;
 import ir.bigz.springTest.service.ProductService;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.json.JacksonTester;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /*
-This time, we need to use a JUnit 5 extension named SpringExtension,
-which is provided by Spring. This extension causes the initialization
-of part of the Spring context.
-
-We also don’t need to make any reference to our controller class apart
-from the one in the WebMVCTest annotation, since the controller will be
-injected in the context automatically.
+Prior to JUnit 5, we would use MockitoJUnitRunner to run our unit test.
+In the new JUnit version, the runner behaviors have been replaced by Extension.
  */
+@ExtendWith(MockitoExtension.class)
+public class ProductControllerMockMvcStandaloneTest {
 
-@AutoConfigureJsonTesters
-@WebMvcTest(ProductController.class)
-public class ProductControllerMockWithApplicationContextTest {
-
-    @Autowired
     private MockMvc mvc;
 
-    @MockBean
+    @Mock
     private ProductService productService;
 
-    // This object will be initialized thanks to @AutoConfigureJsonTesters
-    @Autowired
+    @InjectMocks
+    private ProductController productController;
+
+
+    // This object will be magically initialized by the initFields method below.
+    //a utility class included in the Spring Boot Test module to generate and parse JSON.
     private JacksonTester<ProductDto> jsonProductDto;
+
+    @BeforeEach
+    public void setUp() {
+
+        /*
+        MockMvc standalone approach, you have to define controller, advice , ...
+        because that you don’t have any Spring context that can inject them automatically.
+         */
+        mvc = MockMvcBuilders.standaloneSetup(productController)
+                .setControllerAdvice(new ProductExceptionHandler())
+                .addFilters(new RequestFilter())
+                .build();
+
+        /*
+        We would need this line if we would not use the MockitoExtension
+        MockitoAnnotations.initMocks(this);
+        Here we can't use @AutoConfigureJsonTesters because there isn't a Spring context
+         */
+        JacksonTester.initFields(this, new ObjectMapper());
+    }
 
     @Test
     public void canRetrieveByIdWhenExists() throws Exception {
@@ -99,24 +120,8 @@ public class ProductControllerMockWithApplicationContextTest {
     }
 
     @Test
-    public void canRetrieveByNameWhenDoesNotExist() throws Exception {
-        // given
-        given(productService.getProductByName("ginger"))
-                .willReturn(null);
-
-        // when
-        MockHttpServletResponse response = mvc.perform(
-                get("/product/api/v1/byname?name=ginger")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andReturn().getResponse();
-
-        // then
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getContentAsString()).isEqualTo("");
-    }
-
-    @Test
     public void canCreateANewProduct() throws Exception {
+
         // when
         MockHttpServletResponse response = mvc.perform(
                 post("/product/api/v1/")
@@ -133,6 +138,7 @@ public class ProductControllerMockWithApplicationContextTest {
 
     @Test
     public void headerIsPresent() throws Exception {
+
         // when
         MockHttpServletResponse response = mvc
                 .perform(get("/product/api/v1/byId?id=2")
