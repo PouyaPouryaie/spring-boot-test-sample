@@ -1,4 +1,4 @@
-package ir.bigz.springTest;
+package ir.bigz.springTest.controller;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -33,7 +33,7 @@ import java.io.IOException;
  */
 
 @SpringBootTest
-public class ControllerTest {
+public class FirstSampleControllerTest {
 
     protected MockMvc mvc;
 
