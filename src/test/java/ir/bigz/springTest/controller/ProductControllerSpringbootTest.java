@@ -3,6 +3,7 @@ package ir.bigz.springTest.controller;
 import ir.bigz.springTest.dto.ProductDto;
 import ir.bigz.springTest.service.ProductService;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +34,15 @@ public class ProductControllerSpringbootTest {
     @MockBean
     private ProductService productService;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+    private static TestRestTemplate restTemplate;
 
     private String baseUrl;
     private URI uri;
+
+    @BeforeAll
+    public static void init(){
+        restTemplate = new TestRestTemplate();
+    }
 
     @BeforeEach
     public void setUp() throws URISyntaxException{
