@@ -53,7 +53,7 @@ public class ProductControllerSpringbootTest {
     @Test
     public void canRetrieveByIdWhenExists() {
         //given
-        ProductDto productDto = new ProductDto(2L, "Ginger", 54_000D);
+        ProductDto productDto = ProductDto.builder().productId(2L).name("Ginger").price(54_000D).build();
         given(productService.getProductById(2L))
                 .willReturn(productDto);
 
@@ -62,7 +62,7 @@ public class ProductControllerSpringbootTest {
 
         // then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().equals(new ProductDto(2L, "Ginger", 54_000D)));
+        assertThat(response.getBody().equals(ProductDto.builder().productId(2L).name("Ginger").price(54_000D).build()));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class ProductControllerSpringbootTest {
 
         // when
         ResponseEntity<ProductDto> response = restTemplate.postForEntity(uri + "/",
-                new ProductDto(2L, "Ginger", 54_000D), ProductDto.class);
+                ProductDto.builder().productId(2L).name("Ginger").price(54_000D).build(), ProductDto.class);
 
         // then
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);

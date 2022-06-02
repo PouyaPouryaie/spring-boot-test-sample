@@ -10,12 +10,16 @@ I use BDD design for test. the test contain mockTest, standaloneTest, restTest a
     4) RestTest (how run whole application and use restTemplate for test)
 2) repository test section
 3) service test section
+4) Integration Test section
+   1) Create Test for all method of ProductController to test whole project
+   2) use H2 as TestDataBase that divided production from test environment
+   3) Define TestH2Repository as jpaRepo for test
 
 
 How to use:
-in this project use postgresql, so if you want use it code, first of all <br>
-Run postgres and create 'test' database, then write your config in application.yml file <br>
-at test section, next run any test you want.
+in this project use postgresql for production and H2 for test, so if you want use it code, <br> 
+for production mode : Run postgres and create 'test' database, then write your config in application.yml file <br>
+at test section just run test and create db and other thing by jpa and H2, just run any test as you want.
 
 **NOTE:**
 This project is being developed

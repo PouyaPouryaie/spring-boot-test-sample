@@ -4,11 +4,10 @@ import lombok.*;
 
 import java.io.Serializable;
 
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor
-@Getter
+@Data
 @Builder
-@ToString
 public class ProductDto implements Serializable {
 
     private Long productId;

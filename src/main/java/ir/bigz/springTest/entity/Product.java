@@ -4,11 +4,10 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Data
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor
+@Data
 @Builder
-@ToString
 @Entity
 public class Product {
 

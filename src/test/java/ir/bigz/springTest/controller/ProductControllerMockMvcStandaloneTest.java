@@ -69,7 +69,7 @@ public class ProductControllerMockMvcStandaloneTest {
     @Test
     public void canRetrieveByIdWhenExists() throws Exception {
         //given
-        ProductDto productDto = new ProductDto(2L, "Ginger", 54_000D);
+        ProductDto productDto = ProductDto.builder().productId(2L).name("Ginger").price(54_000D).build();
         given(productService.getProductById(2L))
                 .willReturn(productDto);
 
@@ -105,7 +105,7 @@ public class ProductControllerMockMvcStandaloneTest {
     public void canRetrieveByNameWhenExists() throws Exception {
         // given
         given(productService.getProductByName("RobotMan"))
-                .willReturn(new ProductDto(10L, "RobotMan", 120_000D));
+                .willReturn(ProductDto.builder().productId(2L).name("Ginger").price(54_000D).build());
 
         // when
         MockHttpServletResponse response = mvc.perform(
@@ -116,7 +116,7 @@ public class ProductControllerMockMvcStandaloneTest {
         // then
         Assertions.assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
         Assertions.assertThat(response.getContentAsString()).isEqualTo(
-                jsonProductDto.write(new ProductDto(10L, "RobotMan", 120_000D)).getJson());
+                jsonProductDto.write(ProductDto.builder().productId(2L).name("Ginger").price(54_000D).build()).getJson());
     }
 
     @Test
